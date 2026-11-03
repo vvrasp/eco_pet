@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EcoPet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* EcoPet: one light, leaf-tinted world. Dark "hardware" panels (OLED, dashboard) sit inside it like real devices. */
+  --field: #EEF4E8;
+  --paper: #FFFFFF;
+  --forest: #1F5F32;
+  --ink: #15301E;
+  --leaf: #8BD448;
+  --cold: #2F7FA8;
+  --alert: #C93434;
+  --muted: #4E6655;
+  --line: #CFDDC6;
+  --device: #0F1A13;
+  --device-2: #18261C;
+  --oled: #DDF5E3;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --pixel: "VT323", ui-monospace, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--field);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+img { max-width: 100%; display: block; }
+a { color: var(--forest); }
+:focus-visible { outline: 3px solid var(--cold); outline-offset: 2px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.08; text-wrap: balance; margin: 0; color: var(--ink); }
+h1 { font-size: clamp(2.4rem, 5.4vw, 4.1rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: clamp(1.8rem, 3.4vw, 2.6rem); font-weight: 700; letter-spacing: -0.015em; }
+h3 { font-size: 1.2rem; font-weight: 700; }
+p { margin: 0; }
+.wrap { width: min(1160px, 100% - 40px); margin-inline: auto; }
+section { padding-block: clamp(56px, 8vw, 104px); scroll-margin-top: 64px; }
+.intro { display: grid; gap: 14px; max-width: 62ch; margin-bottom: 36px; }
+.intro p { color: var(--muted); font-size: 1.08rem; }
+
+/* header */
+.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--field) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--forest); font-family: var(--display); font-weight: 800; font-size: 1.35rem; }
+.brand canvas { width: 34px; height: 34px; image-rendering: pixelated; }
+.top nav { display: flex; gap: 6px; flex-wrap: wrap; }
+.top nav a { text-decoration: none; color: var(--ink); font-weight: 600; font-size: 0.95rem; padding: 6px 10px; border-radius: 8px; }
+.top nav a:hover { background: var(--paper); }
+@media (max-width: 720px) { .top nav { display: none; } }
+
+/* hero */
+.hero { padding-top: clamp(40px, 6vw, 72px); }
+.hero .wrap { display: grid; grid-template-columns: 1fr 1.05fr; gap: clamp(28px, 5vw, 64px); align-items: center; }
+.hero-copy { display: grid; gap: 22px; }
+.hero-copy .lead { font-size: 1.2rem; color: var(--muted); max-width: 46ch; }
+.modules { display: grid; gap: 10px; }
+.module { display: flex; gap: 12px; align-items: baseline; }
+.module b { font-family: var(--display); color: var(--forest); min-width: 11.5ch; }
+.module span { color: var(--muted); }
+.actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; border-radius: 999px; font: 600 1rem var(--body); text-decoration: none; cursor: pointer; border: 2px solid var(--forest); }
+.btn.solid { background: var(--forest); color: #fff; }
+.btn.solid:hover { background: #174A27; }
+.btn.ghost { background: transparent; color: var(--forest); }
+.btn.ghost:hover { background: var(--paper); }
+.hero-visual { position: relative; padding-bottom: 40px; }
+.crate-frame { background: var(--paper); border-radius: 22px; padding: 18px; box-shadow: 0 24px 50px -28px rgba(31, 95, 50, 0.55); width: 84%; }
+.crate-frame img { border-radius: 12px; width: 100%; }
+.phone { position: absolute; right: 0; bottom: 0; width: clamp(150px, 36%, 230px); background: #10140F; border-radius: 30px; padding: 9px; box-shadow: 0 26px 40px -18px rgba(0, 0, 0, 0.45); }
+.phone .screen { background: linear-gradient(#E9F7DC, #D3EFC0); border-radius: 22px; padding: 12px 12px 14px; display: grid; gap: 8px; justify-items: center; }
+.phone .app-name { font-family: var(--display); font-weight: 800; color: var(--forest); font-size: 1.05rem; }
+.phone canvas { width: 78%; aspect-ratio: 1; image-rendering: pixelated; }
+.phone .lv { display: flex; justify-content: space-between; width: 100%; font-family: var(--pixel); font-size: 1.25rem; color: var(--ink); line-height: 1; }
+.hearts { color: var(--alert); letter-spacing: 1px; }
+.xpbar { width: 100%; height: 9px; border-radius: 9px; background: #fff; border: 1.5px solid var(--forest); overflow: hidden; }
+.xpbar i { display: block; height: 100%; background: linear-gradient(90deg, var(--leaf), #E8D44D); width: 100%; transition: width 0.5s ease; }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; }
+.tiles span { background: #fff; border-radius: 9px; font-size: 0.7rem; font-weight: 600; text-align: center; padding: 6px 2px; color: var(--forest); }
+.tagline { font-family: var(--display); font-weight: 700; font-size: 1.15rem; color: var(--forest); }
+@media (max-width: 860px) {
+  .hero .wrap { grid-template-columns: 1fr; }
+  .hero-visual { max-width: 560px; }
+}
+
+/* problem */
+.problem { background: var(--paper); }
+.problem .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 5vw, 72px); align-items: start; }
+.problem p { font-size: 1.12rem; color: var(--muted); max-width: 56ch; }
+.problem p + p { margin-top: 14px; }
+@media (max-width: 760px) { .problem .wrap { grid-template-columns: 1fr; } }
+
+/* demo */
+.demo-grid { display: grid; grid-template-columns: minmax(280px, 0.8fr) 1.2fr; gap: 20px; align-items: stretch; }
+@media (max-width: 900px) { .demo-grid { grid-template-columns: 1fr; } }
+.stages { display: flex; gap: 6px; background: var(--paper); padding: 5px; border-radius: 14px; border: 1px solid var(--line); margin-bottom: 16px; flex-wrap: wrap; }
+.stages button { flex: 1 1 auto; border: 0; background: transparent; padding: 10px 12px; border-radius: 10px; font: 600 0.95rem var(--body); color: var(--muted); cursor: pointer; }
+.stages button[aria-pressed="true"] { background: var(--forest); color: #fff; }
+.stages button:not([aria-pressed="true"]):hover { background: var(--field); color: var(--ink); }
+.faceplate { background: linear-gradient(#F4F6F3, #DDE3DC); border-radius: 20px; padding: 20px; border-bottom: 18px solid var(--forest); display: grid; gap: 16px; }
+.faceplate-row { display: flex; gap: 14px; align-items: stretch; }
+.oled { flex: 1; background: var(--device); border-radius: 12px; padding: 14px 16px; color: var(--oled); font-family: var(--pixel); box-shadow: inset 0 0 0 3px #263A2C; display: grid; gap: 2px; transition: color 0.3s; }
+.oled .big { font-size: 3.1rem; line-height: 0.95; font-variant-numeric: tabular-nums; }
+.oled .small { font-size: 1.6rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.oled .id { font-size: 1.15rem; opacity: 0.7; }
+.oled.warn { color: #FF8A80; box-shadow: inset 0 0 0 3px var(--alert); }
+.qr { width: 96px; background: #fff; border-radius: 8px; padding: 6px; display: grid; gap: 4px; justify-items: center; align-content: center; }
+.qr svg { width: 100%; height: auto; }
+.qr small { font-size: 0.68rem; color: var(--muted); font-weight: 600; }
+.cause { display: grid; gap: 8px; }
+.cause .btn { width: 100%; }
+.cause .btn.alerting { background: var(--alert); border-color: var(--alert); }
+.cause p { font-size: 0.88rem; color: var(--muted); }
+.dash { background: var(--device-2); color: #E4EFE6; border-radius: 20px; padding: 20px; display: grid; gap: 14px; align-content: start; }
+.dash-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.dash-head h3 { color: #fff; font-size: 1.05rem; }
+.dash-head .sub { font-size: 0.85rem; color: #9FB7A5; }
+.pill { font-weight: 700; font-size: 0.85rem; padding: 5px 12px; border-radius: 999px; background: #244D31; color: #BFF2C9; }
+.pill.bad { background: var(--alert); color: #fff; }
+.banner { display: none; background: #3A1515; border: 1px solid var(--alert); color: #FFD3CF; border-radius: 12px; padding: 12px 14px; font-weight: 600; }
+.banner.show { display: block; }
+.banner span { display: block; font-weight: 400; color: #F3B1AA; font-size: 0.9rem; margin-top: 2px; }
+.chart-box { position: relative; }
+.chart-box canvas { width: 100%; height: 220px; display: block; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.stat { background: #203326; border-radius: 12px; padding: 10px 12px; }
+.stat small { display: block; color: #9FB7A5; font-size: 0.8rem; }
+.stat b { font-family: var(--pixel); font-size: 1.7rem; font-weight: 400; line-height: 1; font-variant-numeric: tabular-nums; }
+.log { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 0.9rem; }
+.log li { display: flex; gap: 10px; color: #C9DCCD; }
+.log time { font-family: var(--pixel); font-size: 1.15rem; color: #8FB39A; min-width: 4.2ch; line-height: 1.2; }
+.log li.bad { color: #FFB4AC; }
+.note { font-size: 0.88rem; color: var(--muted); margin-top: 14px; }
+
+/* hardware */
+.hw { background: var(--paper); }
+.hw-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(24px, 4vw, 56px); align-items: center; }
+@media (max-width: 860px) { .hw-grid { grid-template-columns: 1fr; } }
+.pinned { position: relative; }
+.pinned img { width: 100%; border-radius: 16px; }
+.pin { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: var(--forest); color: #fff; font-weight: 700; display: grid; place-items: center; font-size: 0.9rem; border: 3px solid #fff; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25); }
+.parts { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.parts li { display: grid; grid-template-columns: 34px 1fr; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.parts li:last-child { border-bottom: 0; }
+.parts .n { width: 30px; height: 30px; border-radius: 50%; background: var(--forest); color: #fff; font-weight: 700; display: grid; place-items: center; font-size: 0.9rem; }
+.parts .n.off { background: transparent; color: var(--forest); border: 2px solid var(--forest); }
+.parts h3 { font-size: 1.08rem; margin-bottom: 2px; }
+.parts p { color: var(--muted); font-size: 0.98rem; }
+
+/* chain */
+.chain { display: grid; grid-template-columns: repeat(3, 1fr) 1.15fr; gap: 0; align-items: stretch; }
+.stop { position: relative; padding: 22px 26px 22px 0; display: grid; gap: 10px; align-content: start; }
+.stop + .stop { padding-left: 26px; border-left: 2px dashed var(--line); }
+.stop .num { font-family: var(--pixel); font-size: 2.2rem; color: var(--forest); line-height: 1; }
+.stop p { color: var(--muted); font-size: 0.98rem; }
+.limit { font-weight: 600; font-size: 0.9rem; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; justify-self: start; }
+.stop.hub { background: var(--forest); color: #fff; border-radius: 18px; padding: 22px 24px; border-left: 0; margin-left: 20px; }
+.stop.hub h3 { color: #fff; }
+.stop.hub p { color: #D3E9D6; }
+@media (max-width: 900px) {
+  .chain { grid-template-columns: 1fr; }
+  .stop, .stop + .stop { padding: 18px 0 18px 22px; border-left: 2px dashed var(--line); }
+  .stop.hub { margin: 12px 0 0; padding: 22px; border-left: 0; }
+}
+.chain-note { margin-top: 26px; max-width: 70ch; color: var(--muted); }
+
+/* learn */
+.learn-grid { display: grid; grid-template-columns: 300px 1fr; gap: clamp(24px, 4vw, 56px); align-items: start; }
+@media (max-width: 860px) { .learn-grid { grid-template-columns: 1fr; } }
+.learn-side { display: grid; gap: 18px; justify-items: center; position: sticky; top: 80px; }
+@media (max-width: 860px) { .learn-side { position: static; } }
+.phone.big { position: static; width: 260px; }
+.phone.big .screen.flash { animation: flash 0.6s ease; }
+@keyframes flash { 0% { background: #fff; } 100% { background: linear-gradient(#E9F7DC, #D3EFC0); } }
+@media (prefers-reduced-motion: reduce) { .phone.big .screen.flash { animation: none; } }
+.stage-name { font-family: var(--display); font-weight: 700; color: var(--forest); font-size: 1rem; }
+.evo { display: flex; gap: 6px; justify-content: center; }
+.evo figure { margin: 0; display: grid; justify-items: center; gap: 2px; opacity: 0.35; }
+.evo figure.on { opacity: 1; }
+.evo canvas { width: 46px; height: 46px; image-rendering: pixelated; }
+.evo figcaption { font-size: 0.68rem; font-weight: 600; color: var(--muted); }
+.tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+.tabs button { border: 2px solid var(--forest); background: transparent; color: var(--forest); padding: 9px 16px; border-radius: 999px; font: 600 0.95rem var(--body); cursor: pointer; }
+.tabs button[aria-selected="true"] { background: var(--forest); color: #fff; }
+.tab-desc { color: var(--muted); margin-bottom: 18px; }
+.qs { display: grid; gap: 16px; }
+.q { background: var(--paper); border-radius: 18px; padding: 20px; border: 1px solid var(--line); display: grid; gap: 12px; }
+.q.done { border-color: var(--leaf); box-shadow: inset 4px 0 0 var(--leaf); }
+.ctx { background: var(--device); color: var(--oled); font-family: var(--pixel); font-size: 1.25rem; border-radius: 10px; padding: 10px 14px; line-height: 1.2; }
+.ctx .tag { display: inline-block; font-family: var(--body); font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; margin-bottom: 4px; }
+.ctx .tag.live { background: var(--leaf); color: var(--device); }
+.ctx .tag.sim { background: #E8D44D; color: var(--device); }
+.q h3 { font-family: var(--body); font-size: 1.05rem; font-weight: 700; line-height: 1.35; }
+.opts { display: grid; gap: 8px; }
+.opts button { text-align: left; border: 1.5px solid var(--line); background: var(--field); padding: 11px 14px; border-radius: 12px; font: 500 0.98rem var(--body); color: var(--ink); cursor: pointer; }
+.opts button:hover:not(:disabled) { border-color: var(--forest); }
+.opts button.right { background: #E2F5D2; border-color: var(--forest); font-weight: 700; }
+.opts button.wrong { background: #FBE6E4; border-color: var(--alert); }
+.opts button:disabled { cursor: default; }
+.why { font-size: 0.93rem; color: var(--muted); }
+.why.ok { color: var(--forest); font-weight: 600; }
+.why.no { color: var(--alert); font-weight: 600; }
+.reset { margin-top: 18px; }
+
+/* status */
+.status { background: var(--paper); }
+.status-table { width: 100%; border-collapse: collapse; }
+.status-wrap { overflow-x: auto; }
+.status-table th { text-align: left; font-family: var(--display); font-size: 1.1rem; padding: 0 18px 14px 0; vertical-align: bottom; border-bottom: 2px solid var(--ink); }
+.status-table td { padding: 14px 18px 14px 0; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--muted); width: 33%; min-width: 220px; }
+.status-table td b { color: var(--ink); font-weight: 600; }
+
+/* footer */
+footer { background: var(--forest); color: #fff; padding-block: clamp(56px, 8vw, 96px) 40px; }
+footer .big { font-family: var(--display); font-weight: 800; font-size: clamp(2.2rem, 6vw, 4.4rem); line-height: 1; letter-spacing: -0.02em; color: #fff; }
+footer .big span { display: block; }
+footer .big span:nth-child(2) { color: var(--leaf); }
+footer p { margin-top: 28px; color: #CDE5D1; max-width: 60ch; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top"><canvas id="logoPet" width="72" height="72" aria-hidden="true"></canvas>EcoPet</a>
+    <nav aria-label="Sections">
+      <a href="#try">Try the crate</a>
+      <a href="#inside">Inside the crate</a>
+      <a href="#chain">Supply chain</a>
+      <a href="#learn">EcoPet Learn</a>
+      <a href="#prototype">Prototype</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <h1>Fresh produce, watched from farm to truck.</h1>
+        <p class="lead">EcoPet is a smart crate that records temperature and humidity for every batch of vegetables, and an app that turns the same data into a game students learn from.</p>
+        <div class="modules">
+          <div class="module"><b>Smart Supply</b><span>Sensor crates and a dashboard for farms and distributors</span></div>
+          <div class="module"><b>EcoPet Learn</b><span>A virtual plant pet for secondary and university students</span></div>
+        </div>
+        <div class="actions">
+          <a class="btn solid" href="#try">Try the crate</a>
+          <a class="btn ghost" href="#learn">Meet the pet</a>
+        </div>
+        <p class="tagline">Protect food. Learn smart. Play green.</p>
+      </div>
+      <div class="hero-visual">
+        <div class="crate-frame"><img src="crate.jpg" alt="The EcoPet Smart Monitoring Crate: a green and white vegetable crate filled with lettuce, with an OLED screen showing 24.8 °C and 78 %RH and a QR code label"></div>
+        <div class="phone" aria-label="EcoPet Learn app home screen showing the pet at level 5">
+          <div class="screen">
+            <div class="app-name">EcoPet</div>
+            <canvas id="heroPet" width="192" height="192" aria-hidden="true"></canvas>
+            <div class="lv"><span>Lv.5</span><span class="hearts" aria-hidden="true">&#9829;&#9829;&#9829;</span></div>
+            <div class="xpbar"><i></i></div>
+            <div class="tiles"><span>Missions</span><span>Quiz</span><span>Live data</span><span>My pet</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="problem">
+    <div class="wrap">
+      <h2>Vegetables lose freshness a little at every stop.</h2>
+      <div>
+        <p>Leafy greens wilt and spoil faster when they sit too warm or too dry. Between the farm, the cold room and the truck, nobody sees those conditions until the produce arrives damaged.</p>
+        <p>EcoPet puts a sensor in the crate itself, so each stop is on record and the people handling the food hear about a problem while there is still time to act.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="try">
+    <div class="wrap">
+      <div class="intro">
+        <h2>Try the crate</h2>
+        <p>This is a simulation of one crate, batch EP-0427. Pick a stage, then cause a problem and watch what the operator sees on the dashboard.</p>
+      </div>
+      <div class="demo-grid">
+        <div>
+          <div class="stages" role="group" aria-label="Supply chain stage">
+            <button type="button" data-stage="farm" aria-pressed="false">Farm collection</button>
+            <button type="button" data-stage="storage" aria-pressed="false">Cold storage</button>
+            <button type="button" data-stage="transport" aria-pressed="true">Transport</button>
+          </div>
+          <div class="faceplate">
+            <div class="faceplate-row">
+              <div class="oled" id="oled" aria-live="off">
+                <span class="big" id="oT">4.2 °C</span>
+                <span class="small" id="oH">91 %RH</span>
+                <span class="id">EP-0427</span>
+              </div>
+              <div class="qr"><svg id="qr" viewBox="0 0 25 25" aria-hidden="true"></svg><small>Batch QR</small></div>
+            </div>
+            <div class="cause">
+              <button type="button" class="btn solid" id="faultBtn">Leave the truck door open</button>
+              <p id="causeNote">The crate checks its readings against the limit set for this stage.</p>
+            </div>
+          </div>
+        </div>
+        <div class="dash" aria-label="EcoPet dashboard">
+          <div class="dash-head">
+            <div><h3>EcoPet dashboard</h3><div class="sub" id="dashSub">Batch EP-0427, Transport</div></div>
+            <span class="pill" id="pill">Within limit</span>
+          </div>
+          <div class="banner" id="banner" role="alert"></div>
+          <div class="stats">
+            <div class="stat"><small>Temperature</small><b id="sT">4.2 °C</b></div>
+            <div class="stat"><small>Humidity</small><b id="sH">91 %</b></div>
+            <div class="stat"><small>Stage limit</small><b id="sL">8.0 °C</b></div>
+          </div>
+          <div class="chart-box"><canvas id="chart" aria-label="Temperature over the last 60 simulated minutes, with the stage limit"></canvas></div>
+          <ul class="log" id="log" aria-live="polite"></ul>
+        </div>
+      </div>
+      <p class="note">Simulated data. Thresholds shown here are examples; in EcoPet they are set per stage. EcoPet monitors and alerts. A person takes the corrective action.</p>
+    </div>
+  </section>
+
+  <section class="hw" id="inside">
+    <div class="wrap hw-grid">
+      <div>
+        <div class="intro">
+          <h2>What's inside the crate</h2>
+          <p>A reusable vegetable crate with a small sensing unit built into its side. The numbers on the photo match the parts below.</p>
+        </div>
+        <div class="pinned">
+          <img src="crate.jpg" alt="EcoPet crate with numbered markers on the sensor housing, OLED screen and QR label">
+          <span class="pin" style="left: 28%; top: 76%;">1</span>
+          <span class="pin" style="left: 58%; top: 37%;">2</span>
+          <span class="pin" style="left: 94%; top: 30%;">3</span>
+        </div>
+      </div>
+      <ul class="parts">
+        <li><span class="n">1</span><div><h3>ESP32 and DHT22 sensor</h3><p>Inside the housing, a DHT22 sensor measures temperature and humidity. An ESP32 microcontroller reads it and sends the data over Wi-Fi.</p></div></li>
+        <li><span class="n">2</span><div><h3>OLED display</h3><p>Shows the current reading on the crate, so workers can check it without a phone.</p></div></li>
+        <li><span class="n">3</span><div><h3>QR batch label</h3><p>Scanned at the farm to link the crate to its batch, so every reading is filed under the right produce.</p></div></li>
+        <li><span class="n off">+</span><div><h3>Central dashboard</h3><p>Collects readings from every crate, compares them with each stage's limits and alerts operators when a limit is crossed.</p></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="chain">
+    <div class="wrap">
+      <div class="intro">
+        <h2>One record from farm to truck</h2>
+        <p>The same crate travels with the produce, so its readings follow the batch through each stage.</p>
+      </div>
+      <div class="chain">
+        <div class="stop">
+          <span class="num">1</span>
+          <h3>Farm collection</h3>
+          <p>Workers fill the crate and scan its QR code. The batch is registered with its farm and harvest time.</p>
+          <span class="limit">Example: alert above 30 °C</span>
+        </div>
+        <div class="stop">
+          <span class="num">2</span>
+          <h3>Cold storage</h3>
+          <p>The crate sits on a rack in the cold room while its readings keep arriving on the dashboard.</p>
+          <span class="limit">Example: alert above 5 °C</span>
+        </div>
+        <div class="stop">
+          <span class="num">3</span>
+          <h3>Transport</h3>
+          <p>The crate rides in a refrigerated truck. If the door is left open, the rising temperature is flagged.</p>
+          <span class="limit">Example: alert above 8 °C</span>
+        </div>
+        <div class="stop hub">
+          <h3>Central dashboard</h3>
+          <p>Every crate, every stage, one history per batch. When a reading crosses its limit, the operator gets an alert and can step in.</p>
+        </div>
+      </div>
+      <p class="chain-note">Because every reading carries the batch ID, a distributor can look up where a batch has been and what conditions it saw at each stop.</p>
+    </div>
+  </section>
+
+  <section class="learn" id="learn">
+    <div class="wrap">
+      <div class="intro">
+        <h2>EcoPet Learn: a pet that grows when you learn</h2>
+        <p>Students look after a pixel plant pet by completing food-security missions. Answer all four questions below to grow it from Seedling to Bloom.</p>
+      </div>
+      <div class="learn-grid">
+        <div class="learn-side">
+          <div class="phone big" aria-label="Your EcoPet">
+            <div class="screen" id="learnScreen">
+              <div class="app-name">EcoPet</div>
+              <canvas id="learnPet" width="192" height="192" aria-hidden="true"></canvas>
+              <div class="lv"><span id="lvText">Lv.1</span><span id="xpText">0 / 200 XP</span></div>
+              <div class="xpbar"><i id="xpFill" style="width: 0%"></i></div>
+              <div class="stage-name" id="stageName" aria-live="polite">Seedling</div>
+            </div>
+          </div>
+          <div class="evo" id="evo" aria-label="Evolution stages"></div>
+        </div>
+        <div>
+          <div class="tabs" role="tablist" aria-label="Learning mode">
+            <button type="button" role="tab" id="tab-live" aria-selected="true" aria-controls="panel">Live Learning</button>
+            <button type="button" role="tab" id="tab-sim" aria-selected="false" aria-controls="panel">Simulation Learning</button>
+          </div>
+          <div id="panel" role="tabpanel">
+            <p class="tab-desc" id="tabDesc"></p>
+            <div class="qs" id="qs"></div>
+          </div>
+          <button type="button" class="btn ghost reset" id="resetQuiz">Start over</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="status" id="prototype">
+    <div class="wrap">
+      <div class="intro">
+        <h2>What the prototype does today</h2>
+        <p>EcoPet is an engineering prototype. This page separates what is built from what is simulated for this demo and what could come next.</p>
+      </div>
+      <div class="status-wrap">
+        <table class="status-table">
+          <thead><tr><th scope="col">Built in the prototype</th><th scope="col">Simulated on this page</th><th scope="col">Possible next steps</th></tr></thead>
+          <tbody>
+            <tr><td><b>Temperature and humidity sensing</b> with a DHT22 sensor</td><td>The live readings in Try the crate</td><td>Pilot with a farm and a distributor</td></tr>
+            <tr><td><b>ESP32 data transmission</b> to a central dashboard</td><td>The door-left-open and sun-exposure events</td><td>Many crates across many sites on one dashboard</td></tr>
+            <tr><td><b>OLED readout and QR batch ID</b> on the crate</td><td>The sample reading in Live Learning</td><td>Linking alerts to cooling equipment, as a future integration</td></tr>
+            <tr><td><b>Threshold alerts</b> on the dashboard</td><td>The scenarios in Simulation Learning</td><td>More missions built from real batch histories</td></tr>
+            <tr><td><b>EcoPet Learn app</b> with pet, missions, quizzes and XP</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">EcoPet helps people spot risky conditions early. It does not cool produce by itself, and it cannot guarantee food safety or prevent all losses.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="big"><span>Protect food.</span><span>Learn smart.</span><span>Play green.</span></div>
+    <p>EcoPet: Integrated Smart Food Supply Monitoring and Gamified Learning Platform. Built for the GSC26 Innovation Competition at Universiti Teknologi Malaysia.</p>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- pixel pet ---------- */
+  const PAL = { ol: '#2C6E2F', body: '#9BE15D', shade: '#7CC646', hi: '#D4F7A6', eye: '#18221A', white: '#FFFFFF', blush: '#F59BB0', leaf: '#5DBB3A', leafHi: '#8FD85F', petal: '#FFFFFF', petal2: '#F7B3CF', pollen: '#F5C842', star: '#F5C842', mark: '#2C6E2F' };
+  const SIZE = [
+    { rx: 4.6, ry: 3.8, leaf: 1.5 },
+    { rx: 5.6, ry: 4.5, leaf: 2.1 },
+    { rx: 6.6, ry: 5.2, leaf: 2.7 },
+    { rx: 7.6, ry: 6.0, leaf: 3.3 },
+    { rx: 7.6, ry: 6.0, leaf: 3.3 }
+  ];
+  const STAGES = ['Seedling', 'Sprout', 'Young plant', 'Growing', 'Bloom'];
+  const N = 24;
+
+  function petGrid(level, mood, frame) {
+    const g = Array.from({ length: N }, () => Array(N).fill(null));
+    const set = (x, y, c) => { if (x >= 0 && y >= 0 && x < N && y < N) g[y][x] = c; };
+    const s = SIZE[level - 1];
+    const bob = frame % 2 ? 1 : 0;
+    const cx = 12, cy = 15 + bob;
+    const inE = (x, y, ex, ey, rx, ry) => ((x + 0.5 - ex) / rx) ** 2 + ((y + 0.5 - ey) / ry) ** 2 <= 1;
+    const top = Math.round(cy - s.ry);
+    const stemLen = 2;
+    // stem
+    for (let i = 1; i <= stemLen; i++) { set(11, top - i, PAL.ol); set(12, top - i, PAL.ol); }
+    // leaves
+    const leafY = top - stemLen - 0.6;
+    const lr = s.leaf * 1.15, lq = Math.max(1.1, s.leaf * 0.62);
+    const leaves = level === 1
+      ? [{ ex: 12 + s.leaf * 0.9, ey: leafY - 0.3, rx: lr, ry: lq, a: -0.46 }]
+      : [{ ex: 12 - s.leaf * 1.0, ey: leafY - s.leaf * 0.35, rx: lr, ry: lq, a: 0.46 }, { ex: 12 + s.leaf * 1.0, ey: leafY - s.leaf * 0.35, rx: lr, ry: lq, a: -0.46 }];
+    const inR = (x, y, L) => {
+      const dx = x + 0.5 - L.ex, dy = y + 0.5 - L.ey, c = Math.cos(L.a), sn = Math.sin(L.a);
+      const u = dx * c + dy * sn, v = -dx * sn + dy * c;
+      return (u / L.rx) ** 2 + (v / L.ry) ** 2 <= 1;
+    };
+    leaves.forEach(L => {
+      const pts = [];
+      for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (inR(x, y, L)) pts.push([x, y]);
+      const has = (x, y) => pts.some(p => p[0] === x && p[1] === y);
+      pts.forEach(([x, y]) => {
+        const edge = !has(x + 1, y) || !has(x - 1, y) || !has(x, y + 1) || !has(x, y - 1);
+        set(x, y, edge ? PAL.ol : PAL.leaf);
+      });
+      const hx = Math.round(L.ex - 0.5), hy = Math.round(L.ey - 0.5);
+      if (level > 1 && g[hy] && g[hy][hx] === PAL.leaf) set(hx, hy, PAL.leafHi);
+    });
+    // body
+    const body = [];
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (inE(x, y, cx, cy, s.rx, s.ry)) body.push([x, y]);
+    const inBody = (x, y) => body.some(p => p[0] === x && p[1] === y);
+    let maxY = 0;
+    body.forEach(([x, y]) => {
+      maxY = Math.max(maxY, y);
+      const edge = !inBody(x + 1, y) || !inBody(x - 1, y) || !inBody(x, y + 1) || !inBody(x, y - 1);
+      let c = PAL.body;
+      if (y + 0.5 > cy + s.ry * 0.45) c = PAL.shade;
+      if ((x + 0.5 - (cx - s.rx * 0.5)) ** 2 + (y + 0.5 - (cy - s.ry * 0.5)) ** 2 < 1.3) c = PAL.hi;
+      set(x, y, edge ? PAL.ol : c);
+    });
+    // feet
+    const L = Math.round(12 - s.rx * 0.5) - 1;
+    [L, L + 1, 22 - L, 23 - L].forEach(x => set(x, maxY + 1, PAL.ol));
+    // face
+    const ey = Math.round(cy - 1);
+    const eyesX = [[L, L + 1], [22 - L, 23 - L]];
+    if (mood === 'tired') {
+      eyesX.forEach(([a, b]) => { set(a, ey + 1, PAL.eye); set(b, ey + 1, PAL.eye); });
+      set(11, ey + 3, PAL.eye); set(12, ey + 3, PAL.eye);
+    } else {
+      eyesX.forEach(([a, b]) => { set(a, ey, PAL.eye); set(b, ey, PAL.eye); set(a, ey + 1, PAL.eye); set(b, ey + 1, PAL.eye); });
+      set(L, ey, PAL.white); set(22 - L, ey, PAL.white);
+      if (mood === 'excited') { set(11, ey + 2, PAL.eye); set(12, ey + 2, PAL.eye); set(11, ey + 3, PAL.eye); set(12, ey + 3, PAL.eye); }
+      else { set(10, ey + 2, PAL.eye); set(13, ey + 2, PAL.eye); set(11, ey + 3, PAL.eye); set(12, ey + 3, PAL.eye); }
+    }
+    [[L - 1, ey + 2], [24 - L, ey + 2]].forEach(([x, y]) => { if (inBody(x, y) && g[y][x] !== PAL.ol) set(x, y, PAL.blush); });
+    // flower
+    if (level === 5) {
+      const fy = top - stemLen - 2;
+      [[11, fy], [12, fy], [11, fy + 1], [12, fy + 1]].forEach(([x, y]) => set(x, y, PAL.pollen));
+      [[10, fy], [10, fy + 1], [13, fy], [13, fy + 1]].forEach(([x, y]) => set(x, y, PAL.petal));
+      [[11, fy - 1], [12, fy - 1], [11, fy + 2], [12, fy + 2]].forEach(([x, y]) => set(x, y, PAL.petal2));
+    }
+    // mood marks
+    if (mood === 'thinking') [[1, 0], [2, 0], [2, 1], [1, 2], [1, 4]].forEach(([x, y]) => set(19 + x, 3 + y, PAL.mark));
+    if (mood === 'tired') [[0, 0], [1, 0], [2, 0], [1, 1], [0, 2], [1, 2], [2, 2]].forEach(([x, y]) => set(19 + x, 3 + y, PAL.mark));
+    if (mood === 'excited') {
+      [[3, 5], [20, 4], [19, 11]].forEach(([sx, sy], i) => {
+        if ((frame + i) % 2 === 0 || reduce) [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([x, y]) => set(sx + x, sy + y, PAL.star));
+        else set(sx, sy, PAL.star);
+      });
+    }
+    if (mood === 'happy' && frame % 4 === 0) [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([x, y]) => set(20 + x, 6 + y, PAL.star));
+    return g;
+  }
+
+  function drawPet(canvas, level, mood, frame) {
+    const ctx = canvas.getContext('2d');
+    const px = canvas.width / N;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const g = petGrid(level, mood, frame);
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (g[y][x]) { ctx.fillStyle = g[y][x]; ctx.fillRect(x * px, y * px, px, px); }
+  }
+
+  /* ---------- fake QR ---------- */
+  (function drawQR() {
+    const svg = document.getElementById('qr');
+    const M = 25; let seed = 427;
+    const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    let r = '';
+    const finder = (ox, oy) => { r += `<rect x="${ox}" y="${oy}" width="7" height="7" fill="#111"/><rect x="${ox + 1}" y="${oy + 1}" width="5" height="5" fill="#fff"/><rect x="${ox + 2}" y="${oy + 2}" width="3" height="3" fill="#111"/>`; };
+    const reserved = (x, y) => (x < 8 && y < 8) || (x > M - 9 && y < 8) || (x < 8 && y > M - 9);
+    for (let y = 0; y < M; y++) for (let x = 0; x < M; x++) if (!reserved(x, y) && rnd() > 0.52) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="#111"/>`;
+    finder(0, 0); finder(M - 7, 0); finder(0, M - 7);
+    svg.innerHTML = r;
+  })();
+
+  /* ---------- crate simulation ---------- */
+  const SIM = {
+    farm: { name: 'Farm collection', base: { t: 24.8, h: 78 }, fault: { t: 33.5, h: 60 }, limit: 30, clock: 8 * 60, faultLabel: 'Leave the crate in the sun', fixLabel: 'Move the crate into shade', faultLog: 'Crate left in direct sun', fixLog: 'Crate moved into shade', note: 'At the farm, the crate logs ambient conditions before the cold chain starts.' },
+    storage: { name: 'Cold storage', base: { t: 3.8, h: 93 }, fault: { t: 9.5, h: 84 }, limit: 5, clock: 13 * 60, faultLabel: 'Leave the cold-room door open', fixLabel: 'Close the cold-room door', faultLog: 'Cold-room door left open', fixLog: 'Cold-room door closed', note: 'In the cold room, leafy greens are usually kept near 0 to 4 °C with high humidity.' },
+    transport: { name: 'Transport', base: { t: 4.2, h: 91 }, fault: { t: 11.5, h: 82 }, limit: 8, clock: 15 * 60 + 30, faultLabel: 'Leave the truck door open', fixLabel: 'Close the truck door', faultLog: 'Truck door left open', fixLog: 'Truck door closed by driver', note: 'On the road, the crate keeps reporting so the operator knows how the batch is doing.' }
+  };
+  const st = { stage: 'transport', fault: false, t: 0, h: 0, series: [], clock: 0, alert: false, log: [] };
+  const $ = id => document.getElementById(id);
+  const fmtClock = m => { m = ((m % 1440) + 1440) % 1440; return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); };
+  const noise = a => (Math.random() - 0.5) * a;
+
+  function resetStage(stage) {
+    const S = SIM[stage];
+    st.stage = stage; st.fault = false; st.alert = false; st.log = [];
+    st.t = S.base.t; st.h = S.base.h; st.clock = S.clock;
+    st.series = Array.from({ length: 60 }, () => S.base.t + noise(0.25));
+    st.series[59] = st.t;
+    addLog(`Batch EP-0427 reporting from ${S.name.toLowerCase()}`, false);
+    document.querySelectorAll('.stages button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.stage === stage)));
+    $('causeNote').textContent = S.note;
+    $('dashSub').textContent = `Batch EP-0427, ${S.name}`;
+    render();
+  }
+  function addLog(text, bad) {
+    st.log.unshift({ time: fmtClock(st.clock), text, bad });
+    st.log = st.log.slice(0, 5);
+  }
+  function tick() {
+    const S = SIM[st.stage];
+    const target = st.fault ? S.fault : S.base;
+    st.t += (target.t - st.t) * 0.09 + noise(0.12);
+    st.h += (target.h - st.h) * 0.09 + noise(0.5);
+    st.h = Math.max(30, Math.min(99, st.h));
+    st.clock += 1;
+    st.series.push(st.t); st.series = st.series.slice(-60);
+    if (!st.alert && st.t > S.limit) { st.alert = true; addLog(`Alert sent to operator: ${st.t.toFixed(1)} °C, limit ${S.limit.toFixed(1)} °C`, true); }
+    else if (st.alert && st.t < S.limit - 0.3) { st.alert = false; addLog(`Back within limit: ${st.t.toFixed(1)} °C`, false); }
+    render();
+  }
+  function render() {
+    const S = SIM[st.stage];
+    $('oT').textContent = `${st.t.toFixed(1)} °C`;
+    $('oH').textContent = `${Math.round(st.h)} %RH`;
+    $('oled').classList.toggle('warn', st.alert);
+    $('sT').textContent = `${st.t.toFixed(1)} °C`;
+    $('sH').textContent = `${Math.round(st.h)} %`;
+    $('sL').textContent = `${S.limit.toFixed(1)} °C`;
+    const pill = $('pill');
+    pill.textContent = st.alert ? 'Alert' : 'Within limit';
+    pill.classList.toggle('bad', st.alert);
+    const banner = $('banner');
+    if (st.alert) {
+      banner.innerHTML = `Temperature alert for batch EP-0427<span>${S.name}: ${st.t.toFixed(1)} °C against a limit of ${S.limit.toFixed(1)} °C. Check the crate and the conditions around it.</span>`;
+      banner.classList.add('show');
+    } else banner.classList.remove('show');
+    const btn = $('faultBtn');
+    btn.textContent = st.fault ? S.fixLabel : S.faultLabel;
+    btn.classList.toggle('alerting', st.fault);
+    $('log').innerHTML = st.log.map(l => `<li class="${l.bad ? 'bad' : ''}"><time>${l.time}</time><span>${l.text}</span></li>`).join('');
+    drawChart();
+  }
+  function drawChart() {
+    const c = $('chart');
+    const dpr = window.devicePixelRatio || 1;
+    const w = c.clientWidth, h = c.clientHeight;
+    if (!w) return;
+    if (c.width !== Math.round(w * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
+    const ctx = c.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    const S = SIM[st.stage];
+    const vals = st.series.concat([S.limit]);
+    let lo = Math.floor(Math.min(...vals) - 1.5), hi = Math.ceil(Math.max(...vals) + 1.5);
+    const padL = 42, padR = 12, padT = 12, padB = 24;
+    const X = i => padL + (i / 59) * (w - padL - padR);
+    const Y = v => padT + (1 - (v - lo) / (hi - lo)) * (h - padT - padB);
+    ctx.font = '13px Figtree, sans-serif';
+    ctx.fillStyle = '#8FB39A'; ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 1;
+    const ticks = 4;
+    for (let i = 0; i <= ticks; i++) {
+      const v = lo + (hi - lo) * i / ticks, y = Y(v);
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w - padR, y); ctx.stroke();
+      ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.fillText(v.toFixed(0) + '°', padL - 8, y);
+    }
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillText('60 min ago', padL, h - 4);
+    ctx.textAlign = 'right'; ctx.fillText('now', w - padR, h - 4);
+    // limit
+    const ly = Y(S.limit);
+    ctx.strokeStyle = '#E05A52'; ctx.setLineDash([6, 5]); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(padL, ly); ctx.lineTo(w - padR, ly); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#F3A39C'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+    ctx.fillText(`Limit ${S.limit.toFixed(1)} °C`, padL + 6, ly - 4);
+    // area + line
+    const grad = ctx.createLinearGradient(0, padT, 0, h - padB);
+    grad.addColorStop(0, 'rgba(139,212,72,0.30)'); grad.addColorStop(1, 'rgba(139,212,72,0)');
+    ctx.beginPath(); ctx.moveTo(X(0), Y(st.series[0]));
+    st.series.forEach((v, i) => ctx.lineTo(X(i), Y(v)));
+    ctx.lineTo(X(59), h - padB); ctx.lineTo(X(0), h - padB); ctx.closePath();
+    ctx.fillStyle = grad; ctx.fill();
+    ctx.beginPath(); st.series.forEach((v, i) => i ? ctx.lineTo(X(i), Y(v)) : ctx.moveTo(X(i), Y(v)));
+    ctx.strokeStyle = st.alert ? '#FF8A80' : '#8BD448'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.stroke();
+    const last = st.series[59];
+    ctx.beginPath(); ctx.arc(X(59), Y(last), 5, 0, Math.PI * 2);
+    ctx.fillStyle = st.alert ? '#FF8A80' : '#8BD448'; ctx.fill();
+    ctx.strokeStyle = '#18261C'; ctx.lineWidth = 2; ctx.stroke();
+  }
+  document.querySelectorAll('.stages button').forEach(b => b.addEventListener('click', () => resetStage(b.dataset.stage)));
+  $('faultBtn').addEventListener('click', () => {
+    const S = SIM[st.stage];
+    st.fault = !st.fault;
+    addLog(st.fault ? S.faultLog : S.fixLog, false);
+    render();
+  });
+  window.addEventListener('resize', drawChart);
+  resetStage('transport');
+  setInterval(tick, 700);
+
+  /* ---------- EcoPet Learn quiz ---------- */
+  const QUESTIONS = [
+    { mode: 'live', ctx: ['Sample sensor reading', 'EP-0427, cold storage: 3.8 °C, 93 %RH'],
+      q: 'Is this batch of leafy vegetables stored in a suitable range?',
+      opts: [
+        { t: 'Yes. It is within about 0 to 4 °C and the humidity is high.', ok: true, why: 'Leafy greens keep best when cold and humid, which is where this reading sits.' },
+        { t: 'No. 3.8 °C is too cold for vegetables.', ok: false, why: 'Most leafy greens are kept near 0 to 4 °C, so 3.8 °C is fine.' },
+        { t: 'No. 93 % humidity will make the leaves wilt.', ok: false, why: 'High humidity slows water loss. Dry air is what makes leaves wilt.' }
+      ] },
+    { mode: 'live', ctx: ['Sample sensor reading', 'EP-0427, transport: 9.6 °C, limit 8.0 °C'],
+      q: 'The truck reading has crossed its limit. What does EcoPet do?',
+      opts: [
+        { t: 'It cools the truck automatically.', ok: false, why: 'EcoPet monitors and alerts. It does not control the cooling unit.' },
+        { t: 'It sends an alert so the operator can check the truck.', ok: true, why: 'The dashboard flags the batch, and a person takes the corrective action.' },
+        { t: 'Nothing until the truck reaches the market.', ok: false, why: 'The point of live monitoring is to know during the trip, not after.' }
+      ] },
+    { mode: 'sim', ctx: ['Simulated scenario', 'Truck door left open for 15 min. Crate reads 11 °C.'],
+      q: 'What should the operator do first?',
+      opts: [
+        { t: 'Throw away the whole batch straight away.', ok: false, why: 'The first step is to stop the temperature rising. Quality checks come after.' },
+        { t: 'Wait for the next stop and see if it cools down.', ok: false, why: 'Waiting lets the produce stay warm for longer.' },
+        { t: 'Close the door, check the cooling unit and log the incident.', ok: true, why: 'Fix the cause, then record it so the batch history is complete.' }
+      ] },
+    { mode: 'sim', ctx: ['Simulated scenario', 'A new crate of lettuce arrives at the collection point.'],
+      q: 'Why do workers scan the crate\'s QR code at the farm?',
+      opts: [
+        { t: 'To link every later reading to the right batch.', ok: true, why: 'The QR code ties the crate to its batch, so the history follows the produce.' },
+        { t: 'To unlock the crate lid.', ok: false, why: 'The QR code is a batch label, not a lock.' },
+        { t: 'To pay the farmer for the harvest.', ok: false, why: 'EcoPet records conditions, not payments.' }
+      ] }
+  ];
+  const quiz = { solved: new Set(), tab: 'live', mood: 'thinking', moodUntil: 0, picked: {} };
+  const levelOf = () => 1 + quiz.solved.size;
+
+  function buildEvo() {
+    const evo = $('evo');
+    evo.innerHTML = STAGES.map((n, i) => `<figure data-lv="${i + 1}"><canvas width="96" height="96"></canvas><figcaption>Lv.${i + 1}</figcaption></figure>`).join('');
+    evo.querySelectorAll('canvas').forEach((cv, i) => drawPet(cv, i + 1, 'happy', 1));
+  }
+  function renderQuiz() {
+    const lv = levelOf();
+    $('lvText').textContent = `Lv.${lv}`;
+    $('xpText').textContent = `${quiz.solved.size * 50} / 200 XP`;
+    $('xpFill').style.width = `${quiz.solved.size * 25}%`;
+    $('stageName').textContent = STAGES[lv - 1];
+    $('evo').querySelectorAll('figure').forEach(f => f.classList.toggle('on', Number(f.dataset.lv) <= lv));
+    $('tab-live').setAttribute('aria-selected', String(quiz.tab === 'live'));
+    $('tab-sim').setAttribute('aria-selected', String(quiz.tab === 'sim'));
+    $('tabDesc').textContent = quiz.tab === 'live'
+      ? 'Live Learning uses readings from real EcoPet crates. On this page the readings are samples.'
+      : 'Simulation Learning uses made-up scenarios that would be unsafe or costly to try with real food.';
+    $('qs').innerHTML = QUESTIONS.map((Q, qi) => {
+      if (Q.mode !== quiz.tab) return '';
+      const done = quiz.solved.has(qi);
+      const picked = quiz.picked[qi] || [];
+      const lastPick = picked[picked.length - 1];
+      const fb = lastPick === undefined ? '' : (Q.opts[lastPick].ok ? `<p class="why ok">Correct, +50 XP. ${Q.opts[lastPick].why}</p>` : `<p class="why no">Not quite. ${Q.opts[lastPick].why}</p>`);
+      return `<article class="q ${done ? 'done' : ''}">
+        <div class="ctx"><span class="tag ${Q.mode === 'live' ? 'live' : 'sim'}">${Q.ctx[0]}</span><br>${Q.ctx[1]}</div>
+        <h3>${Q.q}</h3>
+        <div class="opts">${Q.opts.map((o, oi) => {
+          const cls = picked.includes(oi) ? (o.ok ? 'right' : 'wrong') : '';
+          return `<button type="button" class="${cls}" data-q="${qi}" data-o="${oi}" ${done ? 'disabled' : ''}>${o.t}</button>`;
+        }).join('')}</div>
+        <div aria-live="polite">${fb}</div>
+      </article>`;
+    }).join('');
+  }
+  $('qs').addEventListener('click', e => {
+    const b = e.target.closest('button[data-q]');
+    if (!b || b.disabled) return;
+    const qi = Number(b.dataset.q), oi = Number(b.dataset.o);
+    (quiz.picked[qi] = quiz.picked[qi] || []).push(oi);
+    if (QUESTIONS[qi].opts[oi].ok) {
+      quiz.solved.add(qi);
+      setMood('excited', 1800);
+      const scr = $('learnScreen'); scr.classList.remove('flash'); void scr.offsetWidth; scr.classList.add('flash');
+    } else setMood('tired', 1500);
+    renderQuiz();
+  });
+  [['tab-live', 'live'], ['tab-sim', 'sim']].forEach(([id, t]) => $(id).addEventListener('click', () => { quiz.tab = t; renderQuiz(); }));
+  $('resetQuiz').addEventListener('click', () => { quiz.solved.clear(); quiz.picked = {}; quiz.tab = 'live'; renderQuiz(); });
+  function setMood(m, ms) { quiz.mood = m; quiz.moodUntil = Date.now() + ms; }
+  function idleMood() { return quiz.solved.size === QUESTIONS.length ? 'happy' : 'thinking'; }
+
+  /* ---------- animation loop ---------- */
+  let frame = 0;
+  function animate() {
+    const f = reduce ? 0 : frame;
+    const mood = Date.now() < quiz.moodUntil ? quiz.mood : idleMood();
+    drawPet($('heroPet'), 5, 'happy', f);
+    drawPet($('learnPet'), levelOf(), mood, f);
+    drawPet($('logoPet'), 5, 'none', 1);
+    frame++;
+  }
+  buildEvo();
+  renderQuiz();
+  animate();
+  setInterval(animate, 500);
+})();
+</script>
+</body>
+</html>
